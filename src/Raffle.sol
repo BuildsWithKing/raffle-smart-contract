@@ -59,6 +59,7 @@ contract Raffle is VRFConsumerBaseV2Plus {
     enum RaffleState {
         OPEN, // 0
         CALCULATING // 1
+
     }
 
     // ======================================= State Variables ====================================
@@ -216,9 +217,9 @@ contract Raffle is VRFConsumerBaseV2Plus {
     }
 
     /// @notice Callback function used by VRF Coordinator to return the random words.
-   // /// @param requestId The ID of the VRF request.
+    // /// @param requestId The ID of the VRF request.
     /// @param randomWords The array of random words returned by the VRF Coordinator.
-    function fulfillRandomWords(uint256 /*requestId*/, uint256[] calldata randomWords) internal override {
+    function fulfillRandomWords(uint256, /*requestId*/ uint256[] calldata randomWords) internal override {
         // Use the random number to pick a winner from the list of players.
         uint256 indexOfWinner = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[indexOfWinner];

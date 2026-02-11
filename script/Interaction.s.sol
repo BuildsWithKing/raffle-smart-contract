@@ -13,22 +13,21 @@ contract CreateSubscription is Script {
         HelperConfig helperConfig = new HelperConfig();
         address vrfCoordinator = helperConfig.getConfig().vrfCoordinator;
         address account = helperConfig.getConfig().account;
-        (uint256 subId, ) = createSubscription(vrfCoordinator, account);
+        (uint256 subId,) = createSubscription(vrfCoordinator, account);
         return (subId, vrfCoordinator);
     }
 
     /// @notice This function creates a VRF subscription.
     /// @param vrfCoordinator The address of the VRF Coordinator contract.
-    function createSubscription(address vrfCoordinator, address account) public returns (uint256, address){
+    function createSubscription(address vrfCoordinator, address account) public returns (uint256, address) {
         console.log("Creating subscription on Chain Id:", block.chainid);
         vm.startBroadcast(account);
         uint256 subId = VRFCoordinatorV2_5Mock(vrfCoordinator).createSubscription();
         vm.stopBroadcast();
 
         console.log("Your subscription Id is:", subId);
-        console.log(
-                "Please update the subscription Id in your HelperConfig.s.sol file");
-        return (subId, vrfCoordinator);      
+        console.log("Please update the subscription Id in your HelperConfig.s.sol file");
+        return (subId, vrfCoordinator);
     }
 
     /// @notice The run function is the entry point for the script, which creates a VRF subscription using the configuration from HelperConfig.
@@ -52,15 +51,17 @@ contract FundSubscription is Script, CodeConstants {
     }
 
     /// @notice This function funds a VRF subscription.
-    /// @param vrfCoordinator The address of the VRF Coordinator contract.  
+    /// @param vrfCoordinator The address of the VRF Coordinator contract.
     /// @param subscriptionId The subscription ID to fund.
     /// @param linkToken The address of the LINK token contract.
-    function fundSubscription(address vrfCoordinator, uint256 subscriptionId, address linkToken, address account) public {
+    function fundSubscription(address vrfCoordinator, uint256 subscriptionId, address linkToken, address account)
+        public
+    {
         console.log("Funding subscription: ", subscriptionId);
         console.log("Using VRF Coordinator: ", vrfCoordinator);
         console.log("On chain Id: ", block.chainid);
 
-        if(block.chainid == LOCAL_CHAIN_ID) {
+        if (block.chainid == LOCAL_CHAIN_ID) {
             vm.startBroadcast();
             VRFCoordinatorV2_5Mock(vrfCoordinator).fundSubscription(subscriptionId, FUND_AMOUNT);
             vm.stopBroadcast();

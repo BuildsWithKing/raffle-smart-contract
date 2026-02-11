@@ -13,24 +13,25 @@ contract DeployRaffle is HelperConfig {
         deployContract();
     }
 
-    /** @notice This function deploys the Raffle contract using the configuration from HelperConfig. 
-                It also creates and funds a VRF subscription if one does not already exist, and adds the Raffle contract as a consumer of the VRF subscription.
-    */
+    /**
+     * @notice This function deploys the Raffle contract using the configuration from HelperConfig.
+     *             It also creates and funds a VRF subscription if one does not already exist, and adds the Raffle contract as a consumer of the VRF subscription.
+     */
     function deployContract() public returns (Raffle, HelperConfig) {
         HelperConfig helperConfig = new HelperConfig();
         // Local => deploy mocks, get local config
         // sepolia => get sepolia config
-        HelperConfig.NetworkConfig memory config  = helperConfig.getConfig();
+        HelperConfig.NetworkConfig memory config = helperConfig.getConfig();
 
-        if(config.subscriptionId == 0) {
+        if (config.subscriptionId == 0) {
             // Create a new subscription if there is no subscriptionId
             CreateSubscription createSubscription = new CreateSubscription();
-            (config.subscriptionId, config.vrfCoordinator) = createSubscription.createSubscription(config.vrfCoordinator, config.account);
+            (config.subscriptionId, config.vrfCoordinator) =
+                createSubscription.createSubscription(config.vrfCoordinator, config.account);
 
             // Fund the subscription
             FundSubscription fundSubscription = new FundSubscription();
             fundSubscription.fundSubscription(config.vrfCoordinator, config.subscriptionId, config.link, config.account);
-
         }
 
         // Deploy the raffle contract

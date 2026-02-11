@@ -54,14 +54,14 @@ contract HelperConfig is CodeConstants, Script {
         }
     }
 
-    function getConfig() public returns(NetworkConfig memory) {
+    function getConfig() public returns (NetworkConfig memory) {
         return getConfigByChainId(block.chainid);
     }
 
     function getSepoliaEthConfig() public view returns (NetworkConfig memory) {
         NetworkConfig memory sepoliaEthConfig = NetworkConfig({
             entranceFee: MINIMUM_ENTRANCE_FEE, // 10000000000000000
-            interval: INTERVAL, 
+            interval: INTERVAL,
             vrfCoordinator: s_vrfCoordinator,
             gasLane: GAS_LANE,
             subscriptionId: 80347149478299967095994222948394726518165611613272991428049457674216569840309,
@@ -75,23 +75,24 @@ contract HelperConfig is CodeConstants, Script {
 
     function getOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {
         // Check to see if we set an active network config
-        if(localNetworkConfig.vrfCoordinator != address(0)) {
+        if (localNetworkConfig.vrfCoordinator != address(0)) {
             return localNetworkConfig;
         }
 
         // Deploy mocks and such
         vm.startBroadcast();
-        VRFCoordinatorV2_5Mock vrfCoordinatorMock = new VRFCoordinatorV2_5Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE_LINK, MOCK_WEI_PER_UINT_LINK);
+        VRFCoordinatorV2_5Mock vrfCoordinatorMock =
+            new VRFCoordinatorV2_5Mock(MOCK_BASE_FEE, MOCK_GAS_PRICE_LINK, MOCK_WEI_PER_UINT_LINK);
         LinkToken linkToken = new LinkToken();
         vm.stopBroadcast();
 
         localNetworkConfig = NetworkConfig({
             entranceFee: MINIMUM_ENTRANCE_FEE, // 10000000000000000
-            interval: INTERVAL, 
+            interval: INTERVAL,
             vrfCoordinator: address(vrfCoordinatorMock),
             gasLane: GAS_LANE,
             subscriptionId: 0,
-            callbackGasLimit: CALLBACK_GAS_LIMIT, // 500,000 gas  
+            callbackGasLimit: CALLBACK_GAS_LIMIT, // 500,000 gas
             link: address(linkToken),
             account: 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38
         });

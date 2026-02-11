@@ -68,7 +68,7 @@ contract RaffleTest is Test, CodeConstants {
     }
 
     modifier skipFork() {
-        if(block.chainid != LOCAL_CHAIN_ID) {
+        if (block.chainid != LOCAL_CHAIN_ID) {
             return;
         }
         _;
@@ -95,7 +95,7 @@ contract RaffleTest is Test, CodeConstants {
         // Expect the enterRaffle function to revert with the Raffle__SendMoreToEnterRaffle error when called with insufficient funds.
         vm.expectRevert(Raffle.Raffle__SendMoreToEnterRaffle.selector);
         vm.prank(PLAYER);
-        raffle.enterRaffle{value:0}();
+        raffle.enterRaffle{value: 0}();
     }
 
     function testEnterRaffle_RevertsRaffle__RaffleNotOpen() public {
@@ -171,7 +171,7 @@ contract RaffleTest is Test, CodeConstants {
         _enterRaffle_AsPlayer();
 
         // Simulate the passage of time to trigger the upkeep condition and change the raffle state to CALCULATING.
-        _simulateUpkeepCondition(); 
+        _simulateUpkeepCondition();
 
         raffle.performUpkeep("");
     }
@@ -184,14 +184,16 @@ contract RaffleTest is Test, CodeConstants {
         uint256 numPlayers = 1;
         Raffle.RaffleState raffleState = raffle.getRaffleState();
 
-        vm.expectRevert(abi.encodeWithSelector(Raffle.Raffle__UpkeepNotNeeded.selector, currentBalance, numPlayers, raffleState));
+        vm.expectRevert(
+            abi.encodeWithSelector(Raffle.Raffle__UpkeepNotNeeded.selector, currentBalance, numPlayers, raffleState)
+        );
         raffle.performUpkeep("");
     }
 
     function testPerformUpkeep_UpdatesRaffleStateAndEmitsRequestId() public {
         _enterRaffle_AsPlayer();
         _enterRaffle_AsPlayer();
-        _simulateUpkeepCondition(); 
+        _simulateUpkeepCondition();
 
         vm.recordLogs();
         raffle.performUpkeep("");
@@ -206,7 +208,7 @@ contract RaffleTest is Test, CodeConstants {
     function testFulfillRandomWords_CanOnlyBeCalledAfterPerformUpkeep(uint256 randomRequestId) public skipFork {
         _enterRaffle_AsPlayer();
         _enterRaffle_AsPlayer();
-        _simulateUpkeepCondition(); 
+        _simulateUpkeepCondition();
 
         vm.expectRevert(VRFCoordinatorV2_5Mock.InvalidRequest.selector);
         VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(raffle));
@@ -240,7 +242,7 @@ contract RaffleTest is Test, CodeConstants {
         Raffle.RaffleState raffleState = raffle.getRaffleState();
         uint256 winnerBalance = recentWinner.balance;
         uint256 endingTimestamp = raffle.getLastTimestamp();
-        uint256 prize = entranceFee *(additionalEntrants + 1);
+        uint256 prize = entranceFee * (additionalEntrants + 1);
 
         assert(recentWinner == expectedWinner);
         assert(raffleState == Raffle.RaffleState.OPEN);

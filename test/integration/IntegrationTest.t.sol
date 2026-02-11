@@ -83,7 +83,7 @@ contract IntegrationTest is Test, CodeConstants {
         Raffle.RaffleState raffleState = raffle.getRaffleState();
         uint256 winnerBalance = recentWinner.balance;
         uint256 endingTimestamp = raffle.getLastTimestamp();
-        uint256 prize = entranceFee *(additionalEntrants + 1);
+        uint256 prize = entranceFee * (additionalEntrants + 1);
 
         assert(recentWinner == expectedWinner);
         assert(raffleState == Raffle.RaffleState.OPEN);
@@ -96,12 +96,12 @@ contract IntegrationTest is Test, CodeConstants {
         HelperConfig.NetworkConfig memory sepoliaConfig = helperConfig.getConfigByChainId(SEPOLIA_CHAIN_ID);
 
         assert(sepoliaConfig.entranceFee == entranceFee);
-        assert(sepoliaConfig. interval == interval);
+        assert(sepoliaConfig.interval == interval);
 
         HelperConfig.NetworkConfig memory localConfig = helperConfig.getConfigByChainId(LOCAL_CHAIN_ID);
-        
+
         assert(localConfig.entranceFee == entranceFee);
-        assert(localConfig. interval == interval);
+        assert(localConfig.interval == interval);
     }
 
     function testFuzzGetConfigByChainId_RevertsHelperConfig__InvalidChainId(uint256 id) public {
@@ -111,7 +111,7 @@ contract IntegrationTest is Test, CodeConstants {
 
     function testGetOrCreateAnvilEthConfig_Returns() public {
         HelperConfig.NetworkConfig memory localConfig = helperConfig.getOrCreateAnvilEthConfig();
-        
+
         assert(localConfig.entranceFee == entranceFee);
         assert(localConfig.interval == interval);
     }
