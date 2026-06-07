@@ -98,6 +98,9 @@ contract Raffle is VRFConsumerBaseV2Plus {
     /// @notice Records the state of the raffle.
     RaffleState private s_raffleState;
 
+    /// @notice Records users pending withdrawals. 
+    mapping(address => uint256) public s_pendingWithdrawals;
+
     // ===================================== Events ==============================================
     /// @notice Emitted when a player enters the raffle
     /// @param player The address of the player that entered the raffle
@@ -110,6 +113,11 @@ contract Raffle is VRFConsumerBaseV2Plus {
     /// @notice Emitted when a winner is picked.
     /// @param winner The address of the winner.
     event WinnerPicked(address indexed winner);
+
+    /// @notice Emitted when a player withdraws their pending withdrawal.
+    /// @param player The address of the player that withdrew their pending withdrawal.
+    /// @param amount The amount that was withdrawn.
+    event Withdrawn(address indexed player, uint256 amount);
 
     // ======================================= Constructor ========================================
     /// @notice Sets the raffle's entrance fee at deployment
@@ -236,12 +244,33 @@ contract Raffle is VRFConsumerBaseV2Plus {
         // Update the last timestamp to the current time for the next round.
         s_lastTimestamp = block.timestamp;
 
+        // Assign the recent winner's pending withdrawal.
+        s_pendingWithdrawals[recentWinner] += address(this).balance;
+
         // Emit the event WinnerPicked.
         emit WinnerPicked(recentWinner);
+    }
 
-        // Pay the winner by sending them all the ETH in the contract.
-        (bool success,) = recentWinner.call{value: address(this).balance}("");
+    /** 
+    * @notice Withdraws caller's pending withdrawals. 
+    * @return success This is a boolean that indicates whether the withdrawal was successful or not.
+    */
+    function withdraw() external returns (bool success) {
+        // Read the caller's pending withdrawal.
+        uint256 pendingWithdrawal = s_pendingWithdrawals[msg.sender];
+        
+        // Check if the caller has a pending withdrawal.
+        if(pendingWithdrawal != 0) {
+            s_pendingWithdrawals[msg.sender] = 0;
+        }
+
+        // Emit the event Withdrawn.
+        emit Withdrawn(msg.sender, pendingWithdrawal);
+
+        // Send the caller's pending withdrawal. 
+        (success,) = payable(msg.sender).call{value: pendingWithdrawal}("");
         if (!success) {
+            s_pendingWithdrawals[msg.sender] = pendingWithdrawal;
             revert Raffle__PaymentFailed();
         }
     }
@@ -274,8 +303,11 @@ contract Raffle is VRFConsumerBaseV2Plus {
         return s_lastTimestamp;
     }
 
-    /// @notice Returns the address of the most recent winner.
+    /// @notice Return the address of the most recent winner.
     function getRecentWinner() external view returns (address) {
+        if (s_recentWinners.length == 0) {
+            return address(0);
+        }
         return s_recentWinners[s_recentWinners.length - 1];
     }
 }

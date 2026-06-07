@@ -53,7 +53,7 @@ contract IntegrationTest is Test, CodeConstants {
         vm.deal(PLAYER, STARTING_PLAYER_BALANCE);
     }
 
-    function testRafflePicksAWinnerResetsAndPaysWinner_Succeeds() public {
+    function testRafflePicksAWinnerResetsAndWinnerWithdrawsFunds() public {
         vm.prank(PLAYER);
         raffle.enterRaffle{value: entranceFee}();
 
@@ -81,6 +81,9 @@ contract IntegrationTest is Test, CodeConstants {
 
         address recentWinner = raffle.getRecentWinner();
         Raffle.RaffleState raffleState = raffle.getRaffleState();
+
+        vm.prank(recentWinner);
+        raffle.withdraw();
         uint256 winnerBalance = recentWinner.balance;
         uint256 endingTimestamp = raffle.getLastTimestamp();
         uint256 prize = entranceFee * (additionalEntrants + 1);

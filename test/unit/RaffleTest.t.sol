@@ -214,7 +214,7 @@ contract RaffleTest is Test, CodeConstants {
         VRFCoordinatorV2_5Mock(vrfCoordinator).fulfillRandomWords(randomRequestId, address(raffle));
     }
 
-    function testFulfillRandomWords_PicksAWinnerResetsTheRaffleAndSendsMoney() public skipFork {
+    function testFulfillRandomWords_PicksAWinnerResetsTheRaffleAndWinnerWithdrawsFunds() public skipFork {
         _enterRaffle_AsPlayer();
 
         uint256 additionalEntrants = 3; // 4 total entrants including the initial player.
@@ -240,6 +240,10 @@ contract RaffleTest is Test, CodeConstants {
 
         address recentWinner = raffle.getRecentWinner();
         Raffle.RaffleState raffleState = raffle.getRaffleState();
+
+        vm.prank(recentWinner);
+        raffle.withdraw();
+
         uint256 winnerBalance = recentWinner.balance;
         uint256 endingTimestamp = raffle.getLastTimestamp();
         uint256 prize = entranceFee * (additionalEntrants + 1);
